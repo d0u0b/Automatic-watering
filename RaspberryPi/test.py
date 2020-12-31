@@ -1,14 +1,11 @@
-import bluetooth
+import serial
 
-target_name = "HC-06"
-target_addr = None
+port = "/dev/rfcomm0"
+serial = serial.Serial(port,9600)
 
-for addr in bluetooth.discover_devices():
-    if bluetooth.lookup_name( addr ) == target_name:
-        target_addr = addr
-        break
-
-if target_addr is not None:
-    print("found target bluetooth device with address ", target_addr)
-else:
-    print("could not find target bluetooth device nearby")
+while(True):
+    line = serial.readline()
+    if not line: continue
+    print(line)
+    serial.write(line)
+    serial.flushInput()

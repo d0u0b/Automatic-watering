@@ -41,16 +41,35 @@
 ////  }
 //}
 
+//void setup() {
+//  pinMode(A2, INPUT);
+//  pinMode(8, OUTPUT);
+//  Serial.begin(9600);
+//  Serial1.begin(9600);
+//}
+//
+//void loop() {
+//  digitalWrite(8, 1 - digitalRead(8));
+//  Serial.println(analogRead(A2));
+//  Serial1.println(analogRead(A2));
+//  delay(1000);
+//}
 void setup() {
-  pinMode(A2, INPUT);
-  pinMode(8, OUTPUT);
+//  pinMode(A2, INPUT);
+//  pinMode(8, OUTPUT);
   Serial.begin(9600);
   Serial1.begin(9600);
 }
 
 void loop() {
-  digitalWrite(8, 1 - digitalRead(8));
-  Serial.println(analogRead(A2));
-  Serial1.println(analogRead(A2));
-  delay(1000);
+  while(Serial.available()) {
+    Serial1.write(Serial.read());
+  }
+  while(Serial1.available()) {
+    Serial.write(Serial1.read());
+  }
+//  digitalWrite(8, 1 - digitalRead(8));
+//  Serial.println(analogRead(A2));
+//  Serial1.println(analogRead(A2));
+//  delay(1000);
 }
