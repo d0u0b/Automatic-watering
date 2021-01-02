@@ -1,75 +1,52 @@
+#include <DHT.h>
+#include <DHT_U.h>
 
+#include <ArduinoJson.h>
 
-//String sendData(String command, const int timeout) {
-//  String response = "";
-//  Serial1.println(command);
-//  long int time = millis();
-//  while ((time + timeout) > millis()) {
-//    while (Serial1.available()) {
-//      char c = Serial1.read();
-//      response += c;
-//    }
-//  }
-//  
-//  Serial.println(response);
-//  return response;
-//}
+StaticJsonDocument<200> jsonbuffer;
+String outputBuffer;
 
-//void setup() {
-////  Serial1.begin(9600);
-////  Serial.begin(9600);
-//  pinMode(8, OUTPUT);
-//}
-//
-//String response = "";
-//void loop() {
-//  digitalWrite(8, 1 - digitalRead(8));
-//  delay(1000);
-////  response = "";
-////  if(Serial.available()) {
-////    response = Serial.readString();
-////    Serial.println(response);
-////    sendData(response, 1000);
-////  }
-////  response = "";
-////  if(Serial1.available()) {
-////    while (Serial1.available()) {
-////      char c = Serial1.read();
-////      response += c;
-////    }
-////    Serial.println(response);
-////  }
-//}
+DHT dht(8, DHT11);
 
-//void setup() {
-//  pinMode(A2, INPUT);
-//  pinMode(8, OUTPUT);
-//  Serial.begin(9600);
-//  Serial1.begin(9600);
-//}
-//
-//void loop() {
-//  digitalWrite(8, 1 - digitalRead(8));
-//  Serial.println(analogRead(A2));
-//  Serial1.println(analogRead(A2));
-//  delay(1000);
-//}
+int getSoilMoisture() {
+  return analogRead(A0);
+}
+
+double getTemp(){
+  return dht.readTemperature();
+}
+
+double getHumi(){
+  return dht.readHumidity();
+}
+
+void watering(){
+  digitalWrite(9, LOW);
+  delay(3000);
+  digitalWrite(9, HIGH);
+}
+
 void setup() {
-//  pinMode(A2, INPUT);
-//  pinMode(8, OUTPUT);
+  pinMode(A0, INPUT);
+  digitalWrite(9, HIGH);
+  pinMode(9, OUTPUT);
+  dht.begin();
   Serial.begin(9600);
   Serial1.begin(9600);
 }
 
 void loop() {
-  while(Serial.available()) {
-    Serial1.write(Serial.read());
+  int moisture = getSoilMoisture();
+  jsonbuffer["SM"] = moisture;
+  jsonbuffer["temp"] = getTemp();
+  jsonbuffer["humi"] = getHumi();
+  jsonbuffer["water"] = moisture > 800;
+  outputBuffer = "";
+  serializeJson(jsonbuffer, outputBuffer);
+  Serial.println(outputBuffer);
+  Serial1.println(outputBuffer);
+  if(moisture > 800) {
+    watering();
   }
-  while(Serial1.available()) {
-    Serial.write(Serial1.read());
-  }
-//  digitalWrite(8, 1 - digitalRead(8));
-//  Serial.println(analogRead(A2));
-//  Serial1.println(analogRead(A2));
-//  delay(1000);
+  delay(30000);
 }
